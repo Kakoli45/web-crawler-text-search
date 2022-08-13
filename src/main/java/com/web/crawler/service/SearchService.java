@@ -1,4 +1,4 @@
-package com.web.crawler.controller;
+package com.web.crawler.service;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -13,6 +13,8 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+
+import com.web.crawler.utility.StringUtils;
 
 @Service
 public class SearchService {
@@ -50,8 +52,11 @@ public class SearchService {
 			logger.info("\n Found total (" + linksOnRetreivedDocument.size() + ") links on the retreived document on "
 					+ url);
 
-			links = linksOnRetreivedDocument.parallelStream().map(link -> link.absUrl("href"))
-					.collect(Collectors.toList());
+			if (linksOnRetreivedDocument.size() > 0) {
+				links = linksOnRetreivedDocument.parallelStream().map(link -> link.absUrl("href"))
+						.collect(Collectors.toList());
+			}
+
 			return true;
 
 		} catch (IOException exc) {
@@ -81,7 +86,7 @@ public class SearchService {
 
 		String bodyText = htmlDocument.body().text();
 
-		if (bodyText != null && !bodyText.isEmpty()) {
+		if (StringUtils.isNotBlank(bodyText)) {
 			String[] foundWordsArray = Arrays.stream(searchWords).filter(bodyText::contains).toArray(String[]::new);
 
 			if (foundWordsArray != null && foundWordsArray.length > 0) {
